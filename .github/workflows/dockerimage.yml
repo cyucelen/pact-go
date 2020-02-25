@@ -1,0 +1,21 @@
+name: Docker Push
+
+on: [push]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: |
+        export buildtag=$(date +%s)
+        export image=yucelen/pact-go
+        docker build . -t $image
+        docker tag $image $image:$buildtag
+        echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login --username="${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        docker push $image:latest
+        docker push $image:$buildtag
